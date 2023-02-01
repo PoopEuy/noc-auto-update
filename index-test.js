@@ -5,8 +5,8 @@ import express from "express";
 import cors from "cors";
 import axios from "axios";
 import Queue_raspis from "./routes/RaspiRouteApt1.js";
+let date_ob = new Date();
 
-import * as cron from "node-cron";
 const PORT = process.env.PORT || 3012;
 
 const app = express();
@@ -15,13 +15,11 @@ app.use(cors());
 app.use(express.json());
 app.use(Queue_raspis);
 
-let date_ob;
-
 // app.listen(PORT, () => console.log(`SERVER UP AND RUNNING ${PORT}`));
 app.listen(PORT, async function () {
   try {
     console.log("Connection has been established successfully.");
-    cron_filter();
+    cek_status_site1();
 
     return console.log(`Server Berjalan pada 1port ${PORT}`);
   } catch (error) {
@@ -30,38 +28,6 @@ app.listen(PORT, async function () {
 });
 
 // site1_check
-async function cron_filter() {
-  console.log("masuk cron filter");
-  // site_1
-  cron.schedule("* * 0,6,12,18 * * *", () => {
-    date_ob = new Date();
-    console.log("running a task pada setiap jam 0,6,12,18");
-    cek_status_site1();
-  });
-
-  // site_2
-  cron.schedule("* * 1,7,13,19 * * *", () => {
-    date_ob = new Date();
-    console.log("running a task pada setiap jam 1,7,13,19");
-    cek_status_site2();
-  });
-
-  // site_3
-  cron.schedule("* * 2,8,14,20 * * *", () => {
-    date_ob = new Date();
-    console.log("running a task pada setiap jam 2,8,14,20");
-    cek_status_site3();
-  });
-
-  // site_4
-  cron.schedule("* * 3,9,15,21 * * *", () => {
-    date_ob = new Date();
-    console.log("running a task pada setiap menit detikke 15");
-    cek_status_site4();
-  });
-}
-
-// === site1 ===
 async function cek_status_site1() {
   console.log("masuk fungsi");
 
@@ -83,6 +49,12 @@ async function cek_status_site1() {
       update_site1(data_name);
     } else {
       console.log("skip update_site1, next step");
+      setTimeout(
+        await function () {
+          cek_status_site2();
+        },
+        3000
+      );
     }
   } catch (error) {
     console.error(error);
@@ -104,13 +76,20 @@ async function update_site1(data_name) {
 
     const site1_status = await response.data.msg;
     console.log("update status_site : " + data_name + " : " + site1_status);
+
+    setTimeout(
+      await function () {
+        cek_status_site2();
+      },
+      3000
+    );
   } catch (error) {
     console.error(error);
     console.log("error");
   }
 }
 
-// === site2 ===
+// site2_check
 async function cek_status_site2() {
   console.log("cek site2");
 
@@ -132,6 +111,12 @@ async function cek_status_site2() {
       update_site2(data_name);
     } else {
       console.log("skip update_site2, next step");
+      setTimeout(
+        await function () {
+          cek_status_site3();
+        },
+        3000
+      );
     }
   } catch (error) {
     console.error(error);
@@ -153,13 +138,20 @@ async function update_site2(data_name) {
 
     const site2_status = await response.data.msg;
     console.log("update status_site2 : " + data_name + " : " + site2_status);
+
+    setTimeout(
+      await function () {
+        cek_status_site3();
+      },
+      3000
+    );
   } catch (error) {
     console.error(error);
     console.log("error");
   }
 }
 
-// === site3 ===
+// site3_check
 async function cek_status_site3() {
   console.log("cek site3");
 
@@ -181,6 +173,12 @@ async function cek_status_site3() {
       update_site3(data_name);
     } else {
       console.log("skip update_site3, next step");
+      setTimeout(
+        await function () {
+          cek_status_site4();
+        },
+        3000
+      );
     }
   } catch (error) {
     console.error(error);
@@ -202,13 +200,20 @@ async function update_site3(data_name) {
 
     const site3_status = await response.data.msg;
     console.log("update status_site3 : " + data_name + " : " + site3_status);
+
+    setTimeout(
+      await function () {
+        cek_status_site4();
+      },
+      3000
+    );
   } catch (error) {
     console.error(error);
     console.log("error");
   }
 }
 
-// === site3 ===
+// site4_check
 async function cek_status_site4() {
   console.log("cek site4");
 
@@ -230,6 +235,12 @@ async function cek_status_site4() {
       update_site4(data_name);
     } else {
       console.log("skip update_site4, next step, kembali ke site1");
+      setTimeout(
+        await function () {
+          cek_status_site1();
+        },
+        3000
+      );
     }
   } catch (error) {
     console.error(error);
@@ -251,6 +262,14 @@ async function update_site4(data_name) {
 
     const site4_status = await response.data.msg;
     console.log("update status_site4 : " + data_name + " : " + site4_status);
+
+    console.log("selesai, next step, kembali ke site1");
+    setTimeout(
+      await function () {
+        cek_status_site1();
+      },
+      3000
+    );
   } catch (error) {
     console.error(error);
     console.log("error");
